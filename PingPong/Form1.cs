@@ -18,14 +18,19 @@ namespace PingPong
     
     public partial class Form1 : Form
     {
-        MySerial mySerial ;
+        ZingoTIFUART zingoTIFUART ;
         static int time = 5000;
         string shortid="";
         string mypath;//log存放路径
         LinkedList<string> macs = new LinkedList<string>();
-        Hashtable hashtable = new Hashtable(); //设备短地址和Mac地址对应表
+        ArrayList deviceList = new ArrayList();//设备短地址和Mac地址对应表
 
-
+        struct DevicesInfo //设备短地址、Mac地址、是否绑定
+        {
+            public string shortid;
+            public string mac;
+            public bool bind;
+        }
         public Form1()
         {
             InitializeComponent();
@@ -67,8 +72,11 @@ namespace PingPong
             Form_Serial form_Serial = new Form_Serial();
             if (form_Serial.ShowDialog() == DialogResult.OK)
             {
-                mySerial = MySerial.GetMySerial(form_Serial.GetCom(), 115200);
-                mySerial.RevData += (data) =>
+                zingoTIFUART = new ZingoTIFUART(form_Serial.GetCom(), 115200);
+                DevicesInfo devicesInfo = new DevicesInfo();
+                deviceList.Add(devicesInfo.shortid="0x0000");
+                zingoTIFUART.GetMacCmd("0x0000");
+                zingoTIFUART.AddCallback((data) =>
                 {
                     DateTime time = DateTime.Now;
                     string timedata;
@@ -85,28 +93,13 @@ namespace PingPong
 
                     BlindHandle(data);
                     //BulbHandle(data);
-                };
-                OpenNetwork();
+                });
+                zingoTIFUART.OpenNetwork();
+                
                 
             }
         }
-        void NetworkLeave()
-        {
-            //mySerial.asyncSend("plugin network-creator form 0 0x1234 0 11");
-            //mySerial.asyncSend("net pjoin 255");
-            mySerial.asyncSend("network leave");
-        }
-        void NetworkCreate()
-        {
-            mySerial.asyncSend("network form 11 0 0x1234");
-        }
-        void OpenNetwork()
-        {
-            //mySerial.asyncSend("net pjoin 255");
-            mySerial.asyncSend("plugin network-creator-security open-network");
-
-        }
-
+        
         string[] GetImformathion(string data)
         {
             if (data.Contains("Short ID"))
@@ -151,21 +144,22 @@ namespace PingPong
                     return;
                 }
                 string id = information[0];
-                new BulbTest(mySerial, id);                
+                new BulbTest(zingoTIFUART, id);                
             }
         }
 
         void BlindHandle(string data)
         {
-            BlindTest blind = new BlindTest(mySerial);
-            blind.GetMacCmd("0x0000");
-            hashtable.Add("", "0x0000");
             mySerial.AddCallback(new Action<string>((s) =>
             {
                 if (!s.Contains("Device Announce"))
                 {
+
                     string shortid = blind.GetShortID(s);
-                    hashtable.Add("", shortid);
+                    DevicesInfo devices = new DevicesInfo();
+                    devices.shortid = shortid;
+                    deviceList.Add(devices);
+
                     GetMacCmd(shortid);
                 };
                 if (s.Contains("IEEE Address response"))

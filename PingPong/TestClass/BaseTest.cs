@@ -10,69 +10,42 @@ namespace PingPong.TestClass
 {
     class BaseTest
     {
-        public static MySerial mySerial;
+        ZingoTIFUART tIFUART;
 
-        public BaseTest(MySerial mySerial)
+        public BaseTest(ZingoTIFUART tIFUART,string shortid)
         {
-            
+            this.tIFUART = tIFUART;
         }
-
-        static BaseTest CreateTest(MySerial mySerial)
+        public void BindCMD(string source, string shortid, string destination, Action<string> action)
         {
-            return new BaseTest(mySerial);
-        }
-
-        public static void BindCMD( string source,string shortid, string destination,Action<string> action)
-        {
-            string bindcmd = string.Format("zdo bind {0} 1 1 0x0102 {{{1}}} {{{2}}}", shortid, destination, source);
-            mySerial.asyncSend(bindcmd, action);
+            tIFUART.BindCMD(source, shortid, destination, action);
 
         }
-        public static void ReportCMD(string shortid)
+        public void ReportCMD(string shortid)
         {
-            string reportcmd = "zcl global send-me-a-report 0x0102 8 0x20 1 0 {00}";
-            mySerial.asyncSend(reportcmd);
-            Thread.Sleep(500);
-            mySerial.asyncSend("send " + shortid + " 1 1");
+            tIFUART.ReportCMD(shortid);
         }
 
-        public static void GetMacCmd(string shortid)
+        public void GetMacCmd(string shortid)
         {
-            mySerial.asyncSend("zdo ieee " + shortid);
+            tIFUART.GetMacCmd(shortid);
         }
-        
-        public static string GetMac(string data)
+
+        public string GetMac(string data)
         {
-            string mac = "";
-            if (data.Contains("IEEE Address response"))
-            {
-                data = data.Trim('\r');
-                data = data.Replace("(>)", "@");
-                string[] temp = data.Split('@');
-                mac = temp[1];
-            }
-            return mac;
+            return tIFUART.GetMac(data);
 
         }
 
-        public static void Leave(string shortid)
+        public void Leave(string shortid)
         {
-            mySerial.asyncSend("zdo leave " + shortid +" 1 0");
+            tIFUART.Leave(shortid);
         }
 
 
-        public static string GetShortID(string data)
+        public string GetShortID(string data)
         {
-            if (data.Contains("Device Announce"))
-            {
-                data = data.Trim();
-                string[] s = data.Split(':');
-                return s[1];
-            }
-            else
-            {
-                return "";
-            }
+            return tIFUART.GetShortID(data);
         }
 
     }

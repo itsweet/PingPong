@@ -13,11 +13,10 @@ namespace PingPong
 
     class MySerial
     {
-        static MySerial mySerial;
+        public MySerial mySerial;
         SerialPort myPort;
         public CancellationTokenSource cts;
         public ManualResetEvent _resetEvent = new ManualResetEvent(true);
-        public Action<string> RevData;
         private Action<string> callBack;
 
 
@@ -62,8 +61,6 @@ namespace PingPong
                     try
                     {
                         string data = myPort.ReadLine();
-                        //rev.DataHandle(data);
-                        RevData(data);
                         if (callBack == null)
                         {
                             continue;
@@ -80,16 +77,6 @@ namespace PingPong
                 }
             },cts.Token);
             revTask.Start();
-        }
-
-        public static MySerial GetMySerial(string com, int rate)
-        {
-            if (mySerial != null)
-            {
-                mySerial.Stop();
-            }
-            mySerial = new MySerial(com, rate);
-            return mySerial;
         }
 
         CancellationTokenSource GetCancellationToken()

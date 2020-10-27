@@ -80,6 +80,7 @@
     <Compile Include="TestClass\BaseTest.cs" />
     <Compile Include="TestClass\BlindTest.cs" />
     <Compile Include="TestClass\BulbTest.cs" />
+    <Compile Include="ZingoTIFUART.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
