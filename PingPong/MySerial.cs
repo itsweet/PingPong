@@ -13,7 +13,6 @@ namespace PingPong
 
     class MySerial
     {
-        public MySerial mySerial;
         SerialPort myPort;
         public CancellationTokenSource cts;
         public ManualResetEvent _resetEvent = new ManualResetEvent(true);

@@ -18,8 +18,10 @@ namespace PingPong.TestClass
     {
         int status = 0;
         string shortid;
-        public BulbTest(MySerial mySerial, string shortid) : base(mySerial)
+        ZingoTIFUART zingoTIFUART;
+        public BulbTest(ZingoTIFUART mySerial, string shortid) : base(mySerial,shortid)
         {
+            zingoTIFUART = mySerial;
             this.shortid = shortid;
             mySerial.AddCallback(new Action<string>((s)=>
             {
@@ -56,20 +58,20 @@ namespace PingPong.TestClass
                     temp = temp[1].Replace("]","").Replace("[","").Split(' ');
                     if (temp[1] == "00")
                     {
-                        mySerial.asyncSend("zcl level-control mv-to-level 0 0");
-                        mySerial.asyncSend("send " + shortid + " 1 1");
+                        zingoTIFUART.asyncSend("zcl level-control mv-to-level 0 0");
+                        zingoTIFUART.asyncSend("send " + shortid + " 1 1");
                     }
                 };
-                mySerial.AddCallback ( callBack1);
+                zingoTIFUART.AddCallback ( callBack1);
                 callBack = (movetocolor_s) =>
                 {
-                    mySerial.RemoveCallback ( callBack1);
-                    mySerial.asyncSend("zcl color-control movetocolortemp 200 0");
-                    mySerial.asyncSend("send " + shortid + " 1 1");
-                    
-                    mySerial.asyncSend("zdo leave " + shortid + " 1 0");
+                    zingoTIFUART.RemoveCallback ( callBack1);
+                    zingoTIFUART.asyncSend("zcl color-control movetocolortemp 200 0");
+                    zingoTIFUART.asyncSend("send " + shortid + " 1 1");
+
+                    zingoTIFUART.asyncSend("zdo leave " + shortid + " 1 0");
                 };
-                mySerial.AddCallback( callBack);
+                zingoTIFUART.AddCallback( callBack);
             }));
         }
 
@@ -80,11 +82,11 @@ namespace PingPong.TestClass
                 {
                     while(num-- > 0)
                     {
-                        mySerial.asyncSend("zcl on-off on");
-                        mySerial.asyncSend("send " + shortid + " 1 1");
+                        zingoTIFUART.asyncSend("zcl on-off on");
+                        zingoTIFUART.asyncSend("send " + shortid + " 1 1");
                         Thread.Sleep(5000);
-                        mySerial.asyncSend("zcl on-off off");
-                        mySerial.asyncSend("send " + shortid + " 1 1");
+                        zingoTIFUART.asyncSend("zcl on-off off");
+                        zingoTIFUART.asyncSend("send " + shortid + " 1 1");
                         Thread.Sleep(5000);
                     }
                 }
@@ -98,26 +100,26 @@ namespace PingPong.TestClass
                 while (true)
                 {
                     Thread.Sleep(3000);
-                    mySerial.asyncSend("zcl level-control mv-to-level 0 0");
-                    mySerial.asyncSend("send 0xffff 1 1");
+                    zingoTIFUART.asyncSend("zcl level-control mv-to-level 0 0");
+                    zingoTIFUART.asyncSend("send 0xffff 1 1");
                     Thread.Sleep(3000);
-                    mySerial.asyncSend("zcl color-control movetocolortemp 200 0");
-                    mySerial.asyncSend("send 0xffff 1 1");
+                    zingoTIFUART.asyncSend("zcl color-control movetocolortemp 200 0");
+                    zingoTIFUART.asyncSend("send 0xffff 1 1");
                 }
             }));
         }
 
         void MoveToLevel()
         {
-            mySerial.asyncSend("zcl level-control mv-to-level 0 0");
+            zingoTIFUART.asyncSend("zcl level-control mv-to-level 0 0");
             Thread.Sleep(500);
-            mySerial.asyncSend("send " + shortid + " 1 1");
+            zingoTIFUART.asyncSend("send " + shortid + " 1 1");
         }
         void MoveToColorTemp()
         {
-            mySerial.asyncSend("zcl color-control movetocolortemp 200 0");
+            zingoTIFUART.asyncSend("zcl color-control movetocolortemp 200 0");
             Thread.Sleep(500);
-            mySerial.asyncSend("send " + shortid + " 1 1");
+            zingoTIFUART.asyncSend("send " + shortid + " 1 1");
         }
         bool IsResponse(string s)
         {

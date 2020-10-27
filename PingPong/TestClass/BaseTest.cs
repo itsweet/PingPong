@@ -10,7 +10,7 @@ namespace PingPong.TestClass
 {
     class BaseTest
     {
-        ZingoTIFUART tIFUART;
+        public ZingoTIFUART tIFUART;
 
         public BaseTest(ZingoTIFUART tIFUART,string shortid)
         {

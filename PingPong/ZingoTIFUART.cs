@@ -17,20 +17,26 @@ namespace PingPong
         public void BindCMD(string source, string shortid, string destination, Action<string> action)
         {
             string bindcmd = string.Format("zdo bind {0} 1 1 0x0102 {{{1}}} {{{2}}}", shortid, destination, source);
-            mySerial.asyncSend(bindcmd, action);
+            asyncSend(bindcmd, action);
+
+        }
+        public void BindCMD(string source, string shortid, string destination)
+        {
+            string bindcmd = string.Format("zdo bind {0} 1 1 0x0102 {{{1}}} {{{2}}}", shortid, destination, source);
+            asyncSend(bindcmd);
 
         }
         public void ReportCMD(string shortid)
         {
             string reportcmd = "zcl global send-me-a-report 0x0102 8 0x20 1 0 {00}";
-            mySerial.asyncSend(reportcmd);
+            asyncSend(reportcmd);
             Thread.Sleep(500);
-            mySerial.asyncSend("send " + shortid + " 1 1");
+            asyncSend("send " + shortid + " 1 1");
         }
 
         public void GetMacCmd(string shortid)
         {
-            mySerial.asyncSend("zdo ieee " + shortid);
+            asyncSend("zdo ieee " + shortid);
         }
 
         public string GetMac(string data)
@@ -49,7 +55,7 @@ namespace PingPong
 
         public void Leave(string shortid)
         {
-            mySerial.asyncSend("zdo leave " + shortid + " 1 0");
+            asyncSend("zdo leave " + shortid + " 1 0");
         }
 
 
@@ -69,12 +75,12 @@ namespace PingPong
 
         public void NetworkCreate()
         {
-            mySerial.asyncSend("network form 11 0 0x1234");
+            asyncSend("network form 11 0 0x1234");
         }
         public void OpenNetwork()
         {
             //mySerial.asyncSend("net pjoin 255");
-            mySerial.asyncSend("plugin network-creator-security open-network");
+            asyncSend("plugin network-creator-security open-network");
 
         }
     }
