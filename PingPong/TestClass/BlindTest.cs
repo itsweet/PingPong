@@ -46,22 +46,22 @@ namespace PingPong.TestClass
                         Thread.Sleep(500);
                         zingoTIFUART.asyncSend("send " + shortid + " 1 1");
                         Thread.Sleep(3000);
-                        zingoTIFUART.asyncSend("zcl global read 0x0102 0x0008");
-                        zingoTIFUART.asyncSend("send " + shortid + " 1 1");
-                        Thread.Sleep(1000);
+                        //zingoTIFUART.asyncSend("zcl global read 0x0102 0x0008");
+                        //zingoTIFUART.asyncSend("send " + shortid + " 1 1");
+                        //Thread.Sleep(1000);
 
                         zingoTIFUART.asyncSend("zcl window-covering  go-to-lift-percent 52");
                         Thread.Sleep(500);
                         zingoTIFUART.asyncSend("send " + shortid + " 1 1");
                         Thread.Sleep(3000);
-                        zingoTIFUART.asyncSend("zcl global read 0x0102 0x0008");
-                        zingoTIFUART.asyncSend("send " + shortid + " 1 1");
-                        Thread.Sleep(1000);
+                        //zingoTIFUART.asyncSend("zcl global read 0x0102 0x0008");
+                        //zingoTIFUART.asyncSend("send " + shortid + " 1 1");
+                        //Thread.Sleep(1000);
 
                     }
                     catch (Exception e)
                     {
-
+                        Console.WriteLine(e.Message);
                     }
                 }
             }), zingoTIFUART.cts.Token);

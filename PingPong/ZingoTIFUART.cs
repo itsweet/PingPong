@@ -30,7 +30,6 @@ namespace PingPong
         {
             string reportcmd = "zcl global send-me-a-report 0x0102 8 0x20 1 0 {00}";
             asyncSend(reportcmd);
-            Thread.Sleep(500);
             asyncSend("send " + shortid + " 1 1");
         }
 

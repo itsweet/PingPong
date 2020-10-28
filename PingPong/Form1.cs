@@ -93,8 +93,6 @@ namespace PingPong
                     //BulbHandle(data);
                 });
                 zingoTIFUART.OpenNetwork();
-                
-                
             }
         }
         void BulbHandle(string data)
@@ -104,7 +102,7 @@ namespace PingPong
         }
         void JoinHandle(string data)
         {
-            if (!data.Contains("Device Announce"))
+            if (data.Contains("Device Announce"))
             {
                 string shortid = zingoTIFUART.GetShortID(data);
                 DevicesInfo devices = new DevicesInfo();
@@ -138,8 +136,10 @@ namespace PingPong
                 if (info.test == false)
                 {
                     new BlindTest(zingoTIFUART, info.shortid, 5000);
+                    info.test = true;
+                    deviceList.RemoveLast();
+                    deviceList.AddLast(info);
                 }
-                
             }
             BlindHandle(data);
             //BulbHandle(data);
