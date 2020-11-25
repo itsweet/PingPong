@@ -19,6 +19,7 @@ namespace PingPong.TestClass
         ZingoTIFUART zingoTIFUART;
         string shortid;
         int time;//测试次数
+        int sleeptime=3*1000;//发包间隔
         public BlindTest(ZingoTIFUART serial, string id,int time) : base(serial, id)
         {
             this.time = time;
@@ -42,18 +43,18 @@ namespace PingPong.TestClass
                     //mySerial.Send("zdo power " + shortid);
                     try
                     {
-                        zingoTIFUART.asyncSend("zcl window-covering  go-to-lift-percent 50");
-                        Thread.Sleep(500);
+                        zingoTIFUART.asyncSend("zcl window-covering  go-to-lift-percent 48");
+                        //Thread.Sleep(500);
                         zingoTIFUART.asyncSend("send " + shortid + " 1 1");
-                        Thread.Sleep(3000);
+                        Thread.Sleep(sleeptime);
                         //zingoTIFUART.asyncSend("zcl global read 0x0102 0x0008");
                         //zingoTIFUART.asyncSend("send " + shortid + " 1 1");
                         //Thread.Sleep(1000);
 
                         zingoTIFUART.asyncSend("zcl window-covering  go-to-lift-percent 52");
-                        Thread.Sleep(500);
+                        //Thread.Sleep(500);
                         zingoTIFUART.asyncSend("send " + shortid + " 1 1");
-                        Thread.Sleep(3000);
+                        Thread.Sleep(sleeptime);
                         //zingoTIFUART.asyncSend("zcl global read 0x0102 0x0008");
                         //zingoTIFUART.asyncSend("send " + shortid + " 1 1");
                         //Thread.Sleep(1000);

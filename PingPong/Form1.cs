@@ -73,7 +73,7 @@ namespace PingPong
                 DevicesInfo devicesInfo = new DevicesInfo();
                 devicesInfo.shortid = "0x0000";
                 deviceList.AddLast(devicesInfo);
-                zingoTIFUART.GetMacCmd("0x0000");
+                //zingoTIFUART.GetMacCmd("0x0000");
                 zingoTIFUART.AddCallback((data) =>
                 {
                     DateTime time = DateTime.Now;
@@ -88,16 +88,21 @@ namespace PingPong
                     {
                         addText(timedata);
                     }
-                    JoinHandle(data);
-                    BlindHandle(data);
-                    //BulbHandle(data);
+                    //JoinHandle(data);
+                    //BlindHandle(data);
+                    BulbHandle(data);
                 });
-                zingoTIFUART.OpenNetwork();
+                //zingoTIFUART.OpenNetwork();
             }
         }
         void BulbHandle(string data)
         {
-            //new BulbTest(zingoTIFUART, id);                
+            if (data.Contains("Device Announce"))
+            {
+                string shortid = zingoTIFUART.GetShortID(data);
+                new BulbTest(zingoTIFUART, shortid);
+
+            };
             
         }
         void JoinHandle(string data)
@@ -111,6 +116,7 @@ namespace PingPong
                 zingoTIFUART.GetMacCmd(shortid);
                 return;
             };
+            //收到是获取MAC地址的回复
             if (data.Contains("IEEE Address response"))
             {
                 string macadress = zingoTIFUART.GetMac(data);
@@ -128,21 +134,26 @@ namespace PingPong
                 }
                 return;
             };
+            //收到绑定的回复
             if (data.Contains("command 0x8021") && data.Contains("status: 0x00"))
             {
                 string shortid = deviceList.Last.Value.shortid;
                 zingoTIFUART.ReportCMD(shortid);
+                return;
+                
+            }
+            //收到send-me-a-report的回复
+            if (data.Contains("cmd 07") && data.Contains("payload[00 ]") && deviceList.Count>1)
+            {
                 DevicesInfo info = deviceList.Last.Value;
                 if (info.test == false)
                 {
-                    new BlindTest(zingoTIFUART, info.shortid, 5000);
                     info.test = true;
                     deviceList.RemoveLast();
                     deviceList.AddLast(info);
+                    new BlindTest(zingoTIFUART, info.shortid, 3000*1000);
                 }
             }
-            BlindHandle(data);
-            //BulbHandle(data);
         }
         void BlindHandle(string data)
         {

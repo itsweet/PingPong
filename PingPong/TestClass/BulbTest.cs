@@ -12,20 +12,50 @@ namespace PingPong.TestClass
     {
         MoveToLevel,
         MoveToColorTemp,
-        Leave
+        Leave,
+        Remove
     }
     class BulbTest : BaseTest
     {
         int status = 0;
         string shortid;
         ZingoTIFUART zingoTIFUART;
+        Action<string> BulbTestAction;
         public BulbTest(ZingoTIFUART mySerial, string shortid) : base(mySerial,shortid)
         {
             zingoTIFUART = mySerial;
             this.shortid = shortid;
-            mySerial.AddCallback(new Action<string>((s)=>
+
+            //BulbFFTest();
+            //BulbOnOffTest(2500);
+            BulbTestAction = new Action<string>((s) =>
             {
                 if (!IsResponse(s))
+                {
+                    return;
+                }
+                if (s.Contains("command 0x8034") && s.Contains("status: 0x00"))
+                {
+                    if ((BublCMD)status == BublCMD.Leave)
+                    {
+                        status++;
+                    }
+                }
+                else if (s.Contains("Level Control") && s.Contains("cmd 0B payload[00 00 ]"))
+                {
+                    if ((BublCMD)status == BublCMD.MoveToLevel)
+                    {
+                        status++;
+                    }
+                }
+                else if (s.Contains("Color Control") && s.Contains("cmd 0B payload[0A 00 ]"))
+                {
+                    if ((BublCMD)status == BublCMD.MoveToColorTemp)
+                    {
+                        status++;
+                    }
+                }
+                else
                 {
                     return;
                 }
@@ -40,38 +70,28 @@ namespace PingPong.TestClass
                     case BublCMD.Leave:
                         Leave(shortid);
                         break;
+                    case BublCMD.Remove:
+                        zingoTIFUART.RemoveCallback(BulbTestAction);
+                        break;
+                    default:
+                        break;
                 }
-            }));
-            MoveToLevel();
-            status ++;
-            //BulbFFTest();
-            //BulbOnOffTest(2500);
+            });
+            //zingoTIFUART.AddCallback(BulbTestAction);
+
+            BulbTestCMD();
+
         }
-        Task BulbTestCMD(string shortid)
+
+        Task BulbTestCMD()
         {
             return Task.Run(new Action(() =>
             {
-                Action<string> callBack,callBack1;
-                callBack1 = (mvtolive_s) =>
-                {
-                    string[] temp = Regex.Split(mvtolive_s, "payload");
-                    temp = temp[1].Replace("]","").Replace("[","").Split(' ');
-                    if (temp[1] == "00")
-                    {
-                        zingoTIFUART.asyncSend("zcl level-control mv-to-level 0 0");
-                        zingoTIFUART.asyncSend("send " + shortid + " 1 1");
-                    }
-                };
-                zingoTIFUART.AddCallback ( callBack1);
-                callBack = (movetocolor_s) =>
-                {
-                    zingoTIFUART.RemoveCallback ( callBack1);
-                    zingoTIFUART.asyncSend("zcl color-control movetocolortemp 200 0");
-                    zingoTIFUART.asyncSend("send " + shortid + " 1 1");
-
-                    zingoTIFUART.asyncSend("zdo leave " + shortid + " 1 0");
-                };
-                zingoTIFUART.AddCallback( callBack);
+                Thread.Sleep(1 * 1000);
+                MoveToLevel();
+                Thread.Sleep(500);
+                MoveToColorTemp();
+                
             }));
         }
 
@@ -84,10 +104,10 @@ namespace PingPong.TestClass
                     {
                         zingoTIFUART.asyncSend("zcl on-off on");
                         zingoTIFUART.asyncSend("send " + shortid + " 1 1");
-                        Thread.Sleep(5000);
+                        Thread.Sleep(7 * 1000);
                         zingoTIFUART.asyncSend("zcl on-off off");
                         zingoTIFUART.asyncSend("send " + shortid + " 1 1");
-                        Thread.Sleep(5000);
+                        Thread.Sleep(7 * 1000);
                     }
                 }
                 ));
@@ -112,13 +132,13 @@ namespace PingPong.TestClass
         void MoveToLevel()
         {
             zingoTIFUART.asyncSend("zcl level-control mv-to-level 0 0");
-            Thread.Sleep(500);
+            //Thread.Sleep(500);
             zingoTIFUART.asyncSend("send " + shortid + " 1 1");
         }
         void MoveToColorTemp()
         {
             zingoTIFUART.asyncSend("zcl color-control movetocolortemp 200 0");
-            Thread.Sleep(500);
+            //Thread.Sleep(500);
             zingoTIFUART.asyncSend("send " + shortid + " 1 1");
         }
         bool IsResponse(string s)
